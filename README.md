@@ -58,10 +58,10 @@ insight-project/
 - ✅ Animated Navbar
 - ✅ Hero Section
 - ✅ Features Section
-- 🚧 How It Works
-- 🚧 Pricing
-- 🚧 FAQ
-- 🚧 Footer
+- ✅ How It Works
+- ✅ Pricing
+- ✅ FAQ
+- ✅ Footer
 
 ### Dashboard
 
