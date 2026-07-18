@@ -125,6 +125,8 @@ export default function Features() {
                   transition-colors
                   duration-500
                   ease-out
+                  transform-gpu
+                  will-change-transform
                   hover:border-cyan-400/40
                 `}
               >

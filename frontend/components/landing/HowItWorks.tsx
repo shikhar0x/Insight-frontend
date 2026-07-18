@@ -128,7 +128,7 @@ export default function HowItWorks() {
                       scale: 1.01,
                       transition: HOVER_SPRING,
                     }}
-                    className={`group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.08] p-8 backdrop-blur-3xl backdrop-saturate-150 shadow-[0_8px_40px_rgba(0,0,0,0.35)] transition-colors duration-500 ease-out hover:border-cyan-400/40 ${
+                    className={`group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.08] p-8 backdrop-blur-3xl backdrop-saturate-150 shadow-[0_8px_40px_rgba(0,0,0,0.35)] transition-colors duration-500 ease-out transform-gpu will-change-transform hover:border-cyan-400/40 ${
                       step.featured ? "ring-1 ring-cyan-400/20" : ""
                     }`}
                   >

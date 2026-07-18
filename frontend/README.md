@@ -10,6 +10,13 @@ This repository contains the **Next.js frontend** for Insight.
 
 ## ✨ Features
 
+- **🧠 Explainable AI**: Understand *why* an investment is recommended with human-readable, AI-generated reasoning.
+- **📊 Financial Intelligence**: Deep-dive into company fundamentals, earnings reports, and financial statements.
+- **📈 Technical Analysis**: Real-time technical indicators to gauge market momentum and trends.
+- **🛡️ Risk Engine**: Comprehensive risk profiling and portfolio exposure tracking.
+- **📰 News & Sentiment**: Real-time market sentiment analysis driven by the latest news.
+- **💼 Portfolio & Watchlist**: Track your investments and keep a close eye on stocks you're interested in.
+
 ---
 
 # Tech Stack
@@ -27,22 +34,19 @@ This repository contains the **Next.js frontend** for Insight.
 # Project Structure
 
 ```text
-src/
+insight-project/
 │
-├── app/
-├── components/
-│   ├── landing/
-│   ├── dashboard/
-│   ├── layout/
-│   └── ui/
+├── frontend/               <-- Next.js Application
+│   ├── app/                <-- Next.js Routing Layer
+│   ├── components/         <-- React Components
+│   ├── hooks/              <-- Custom React Hooks
+│   ├── lib/                <-- Utility libraries
+│   ├── services/           <-- API Integrations
+│   ├── store/              <-- Global State (Zustand)
+│   ├── types/              <-- TypeScript Definitions
+│   └── package.json
 │
-├── hooks/
-├── lib/
-├── services/
-├── store/
-├── context/
-├── styles/
-└── types/
+└── backend/                <-- Backend Server (Upcoming)
 ```
 
 ---
@@ -83,8 +87,28 @@ cd Insight-frontend
 
 ## Install dependencies
 
+Make sure you are in the `frontend` directory before installing dependencies.
+
 ```bash
+cd frontend
 npm install
+```
+
+### Important Dependencies
+
+The frontend relies on several key packages. If you encounter any missing module errors (for example, if you accidentally searched for "farmer" instead of **framer**), make sure the following are installed:
+
+- `framer-motion` (Animations)
+- `@tanstack/react-query` (Data fetching)
+- `zustand` (State management)
+- `lucide-react` & `react-icons` (Icons)
+- `recharts` (Charts)
+- `zod` & `react-hook-form` (Forms)
+- `clsx` & `tailwind-merge` (Styling utilities)
+
+If you ever need to manually install them all at once:
+```bash
+npm install framer-motion @tanstack/react-query zustand lucide-react react-icons recharts zod react-hook-form clsx tailwind-merge
 ```
 
 ---

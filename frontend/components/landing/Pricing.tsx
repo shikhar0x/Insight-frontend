@@ -109,7 +109,7 @@ export default function Pricing() {
                 scale: 1.02,
                 transition: HOVER_SPRING,
               }}
-              className={`group relative overflow-hidden rounded-[32px] border backdrop-blur-3xl backdrop-saturate-150 shadow-[0_8px_40px_rgba(0,0,0,0.35)] transition-colors duration-500 ease-out
+              className={`group relative overflow-hidden rounded-[32px] border backdrop-blur-3xl backdrop-saturate-150 shadow-[0_8px_40px_rgba(0,0,0,0.35)] transition-colors duration-500 ease-out transform-gpu will-change-transform
               ${
                 plan.popular
                   ? "border-cyan-400/40 bg-white/[0.08] shadow-[0_0_50px_rgba(34,211,238,0.15)] ring-1 ring-cyan-400/20"
