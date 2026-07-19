@@ -39,6 +39,7 @@ export default function AuthOverlay({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    onClick={close}
                     className="
           fixed
           inset-0
@@ -53,6 +54,7 @@ export default function AuthOverlay({
                 >
 
                     <motion.div
+                        onClick={(e) => e.stopPropagation()}
                         initial={{
                             opacity: 0,
                             y: 40,

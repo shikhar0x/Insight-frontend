@@ -7,6 +7,8 @@ import {
   ShieldCheck,
   TrendingUp,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // Same curve used across Features.tsx, HowItWorks.tsx and FAQSection.tsx —
@@ -16,52 +18,105 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Same gentle, well-damped spring used for hover lifts/scales elsewhere.
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-export default function Hero({ onRegister }: { onRegister?: () => void }) {
+interface HeroProps {
+  onRegister?: () => void;
+  onDashboard?: () => void;
+  isAuthenticated?: boolean;
+  canGoForward?: boolean;
+}
+
+export default function Hero({
+  onRegister,
+  onDashboard,
+  isAuthenticated = false,
+  canGoForward = false,
+}: HeroProps) {
   return (
     <section
-        id="home"
-        className="relative overflow-hidden px-6 py-16"
+      id="home"
+      className="relative overflow-hidden px-6 pt-24 pb-16"
     >
-
-
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-20 px-6 pt-40 pb-12 lg:flex-row">
-
-        {/* LEFT */}
-
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, ease: EASE }}
-          className="max-w-xl"
-        >
+      <div className="mx-auto max-w-7xl px-8">
+        {/* Top Header Row: Pill Badge on Left + Navigation Arrows on Right */}
+        <div className="mb-8 flex items-center justify-between">
           <motion.div
             whileHover={{ scale: 1.03, transition: HOVER_SPRING }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300 backdrop-blur-xl"
+            className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300 backdrop-blur-xl"
           >
             <Sparkles size={16} />
             Explainable AI for Smarter Investing
           </motion.div>
 
-          <h1 className="text-5xl font-black leading-tight md:text-7xl">
-            Understand
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              {" "}
-              Stocks
-            </span>
-            <br />
-            Not Just Numbers.
-          </h1>
+          {/* Navigation Arrows */}
+          <div className="flex items-center gap-2">
+            <motion.button
+              disabled
+              whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
+              whileTap={{ scale: 0.95 }}
+              title="Back"
+              aria-label="Back"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/5 bg-white/[0.02] text-slate-600 backdrop-blur-xl cursor-not-allowed opacity-50"
+            >
+              <ChevronLeft
+                className="h-5 w-5"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </motion.button>
 
-          <p className="mt-8 text-lg leading-8 text-slate-400">
-            Insight transforms annual reports, financial statements,
-            technical indicators and market data into explainable AI
-            reasoning that anyone can understand.
-          </p>
+            <motion.button
+              onClick={onDashboard}
+              whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
+              whileTap={{ scale: 0.95 }}
+              title={canGoForward ? "Go to Dashboard" : "Forward"}
+              aria-label="Forward"
+              disabled={!canGoForward}
+              className={`flex h-10 w-10 items-center justify-center rounded-xl border backdrop-blur-xl transition ${
+                canGoForward
+                  ? "border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/30 hover:bg-white/10 hover:text-white"
+                  : "border-white/5 bg-white/[0.02] text-slate-600 cursor-not-allowed opacity-50"
+              }`}
+            >
+              <ChevronRight
+                className="h-5 w-5"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Hero Body Layout */}
+        <div className="flex flex-col items-center justify-between gap-20 pb-12 lg:flex-row">
+          {/* LEFT */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="max-w-xl"
+          >
+            <h1 className="text-5xl font-black leading-tight md:text-7xl">
+              Understand
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                {" "}
+                Stocks
+              </span>
+              <br />
+              Not Just Numbers.
+            </h1>
+
+            <p className="mt-8 text-lg leading-8 text-slate-400">
+              Insight transforms annual reports, financial statements,
+              technical indicators and market data into explainable AI
+              reasoning that anyone can understand.
+            </p>
 
           <div className="mt-10 flex flex-wrap gap-5 mb-6">
 
             <motion.button
-              onClick={onRegister}
+              onClick={isAuthenticated ? onDashboard : onRegister}
               whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
               whileTap={{ scale: 0.97, transition: { duration: 0.15, ease: EASE } }}
               className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 font-semibold shadow-lg shadow-cyan-500/30"
@@ -182,7 +237,7 @@ export default function Hero({ onRegister }: { onRegister?: () => void }) {
           </motion.div>
 
         </motion.div>
-
+        </div>
       </div>
     </section>
   );

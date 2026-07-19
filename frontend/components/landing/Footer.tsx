@@ -40,7 +40,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-white/10 bg-[#050816]">
+    <footer className="relative border-t border-white/10">
       {/* Gradient Line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-70" />
 

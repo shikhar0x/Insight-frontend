@@ -10,10 +10,12 @@ interface Props {
   onSuccess: () => void;
 }
 
-const DEMO_ACCOUNT = {
-  email: "demo@insight.ai",
-  password: "Insight123",
-};
+const REGISTERED_USERS = [
+  {
+    email: "demo@insight.ai",
+    password: "Insight123",
+  },
+];
 
 export default function LoginForm({
   switchToRegister,
@@ -36,12 +38,15 @@ export default function LoginForm({
     setLoading(true);
 
     // Fake network delay
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    if (
-      email === DEMO_ACCOUNT.email &&
-      password === DEMO_ACCOUNT.password
-    ) {
+    const foundUser = REGISTERED_USERS.find(
+      (u) =>
+        u.email.toLowerCase() === email.trim().toLowerCase() &&
+        u.password === password
+    );
+
+    if (foundUser) {
       onSuccess();
       return;
     }
@@ -51,7 +56,13 @@ export default function LoginForm({
   }
 
   return (
-    <div className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleLogin();
+      }}
+      className="space-y-6"
+    >
       <div className="space-y-2 text-center">
         <h2 className="text-3xl font-bold text-white">
           Welcome Back
@@ -98,7 +109,7 @@ export default function LoginForm({
       )}
 
       <button
-        onClick={handleLogin}
+        type="submit"
         disabled={loading}
         className="
           w-full
@@ -128,6 +139,7 @@ export default function LoginForm({
         <p className="text-gray-400">
           Don't have an account?{" "}
           <button
+            type="button"
             onClick={switchToRegister}
             className="font-semibold text-cyan-400 hover:underline"
           >
@@ -135,6 +147,6 @@ export default function LoginForm({
           </button>
         </p>
       </div>
-    </div>
+    </form>
   );
 }

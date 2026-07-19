@@ -50,7 +50,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="relative overflow-hidden bg-[#050816] py-16 text-white"
+      className="relative overflow-hidden py-16 text-white"
     >
       {/* Background Glow */}
       <div className="absolute inset-0 -z-10">

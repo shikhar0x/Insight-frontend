@@ -51,11 +51,19 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Same gentle, well-damped spring used for hover lifts/scales elsewhere.
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-export default function Pricing({ onRegister }: { onRegister?: () => void }) {
+export default function Pricing({
+  onRegister,
+  onDashboard,
+  isAuthenticated = false,
+}: {
+  onRegister?: () => void;
+  onDashboard?: () => void;
+  isAuthenticated?: boolean;
+}) {
   return (
     <section
       id="pricing"
-      className="relative overflow-hidden bg-[#050816] py-16 text-white"
+      className="relative overflow-hidden py-16 text-white"
     >
       {/* Background Glow — same cyan/blue pairing as Features/HowItWorks/FAQ */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -161,7 +169,7 @@ export default function Pricing({ onRegister }: { onRegister?: () => void }) {
                 </p>
 
                 <button
-                  onClick={onRegister}
+                  onClick={isAuthenticated ? onDashboard : onRegister}
                   className={`group/btn mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-colors duration-300 ease-out
                   ${
                     plan.popular

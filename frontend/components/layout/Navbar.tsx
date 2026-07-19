@@ -2,10 +2,31 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
-import { Menu, X, Home } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  UserCircle2,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  User,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navItems = [
+interface LandingNavItem {
+  label: string;
+  href: string;
+  id: string;
+  icon?: React.ElementType;
+}
+
+interface DashboardNavItem {
+  label: string;
+  id: string;
+}
+
+const landingNavItems: LandingNavItem[] = [
   { label: "Home", href: "#home", id: "home", icon: Home },
   { label: "Features", href: "#features", id: "features" },
   { label: "How It Works", href: "#how-it-works", id: "how-it-works" },
@@ -13,23 +34,76 @@ const navItems = [
   { label: "FAQ", href: "#faq", id: "faq" },
 ];
 
+const dashboardNavItems: DashboardNavItem[] = [
+  { label: "Dashboard", id: "dashboard" },
+  { label: "Portfolio", id: "portfolio" },
+  { label: "Watchlist", id: "watchlist" },
+  { label: "Screener", id: "screener" },
+  { label: "Company", id: "company" },
+];
+
+export type DashboardTab = "dashboard" | "portfolio" | "watchlist" | "screener" | "company";
+
 interface NavbarProps {
+  isAuthenticated: boolean;
+  currentView: "landing" | "dashboard";
+  activeDashboardTab: DashboardTab;
+  onDashboardTabChange: (tab: DashboardTab) => void;
+
   onLogin: () => void;
   onRegister: () => void;
+
+  onDashboard: () => void;
+  onLogout: () => void;
   lockVisible?: boolean;
 }
 
 export default function Navbar({
+  isAuthenticated,
+  currentView,
+  activeDashboardTab,
+  onDashboardTabChange,
   onLogin,
   onRegister,
+  onDashboard,
+  onLogout,
   lockVisible = false,
 }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const navItems =
+    currentView === "landing"
+      ? landingNavItems
+      : dashboardNavItems;
 
   const hideTimeout = useRef<NodeJS.Timeout | null>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: Event) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,16 +116,20 @@ export default function Navbar({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lockVisible]);
 
-  // When lockVisible changes to true, force the navbar visible.
+  // Keep navbar visible when lockVisible or auth state / view changes.
   useEffect(() => {
-    if (lockVisible) setVisible(true);
-  }, [lockVisible]);
+    if (lockVisible || isAuthenticated) {
+      setVisible(true);
+    }
+  }, [lockVisible, isAuthenticated, currentView]);
 
   // Scroll-spy: figure out which section is currently under the navbar
   // so the sliding underline can track it as the user scrolls, not just
   // when they click.
   useEffect(() => {
-    const sectionIds = navItems
+    if (currentView !== "landing") return;
+
+    const sectionIds = landingNavItems
       .filter((item) => item.id !== "home")
       .map((item) => item.id);
 
@@ -122,10 +200,10 @@ export default function Navbar({
     }
   };
 
-  // Sign In / Get Started etc. — no scroll target, just close menu.
+  // Sign In / Get Started etc. — no scroll target, just close mobile menu.
   const handleActionClick = () => {
     setMobileOpen(false);
-    if (!lockVisible) setVisible(false);
+    setVisible(true);
   };
 
   return (
@@ -161,7 +239,7 @@ export default function Navbar({
           Only the wrapper above animates a transform.
         */}
         <nav
-          className={`relative w-full max-w-7xl overflow-hidden rounded-3xl
+          className={`relative w-full max-w-7xl rounded-3xl
             border border-white/15
             bg-white/[0.08]
             backdrop-blur-3xl backdrop-saturate-150
@@ -169,10 +247,8 @@ export default function Navbar({
             transition-colors duration-300
             ${scrolled ? "border-white/20 bg-white/[0.10]" : ""}`}
         >
-          {/* Liquid Glass shine layer — static, always fully rendered.
-              No independent opacity/scale animation, so it can't lag
-              behind the frame anymore. */}
-          <div className="pointer-events-none absolute inset-0">
+          {/* Liquid Glass shine layer — static, always fully rendered. */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
             <div className="absolute left-1/2 -top-28 h-56 w-[28rem] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.15)_0%,transparent_70%)]" />
             <div className="absolute -left-24 top-0 h-full w-52 rotate-12 bg-gradient-to-r from-white/12 via-white/6 to-transparent blur-2xl" />
@@ -202,18 +278,51 @@ export default function Navbar({
             {/* Desktop Navigation */}
             <div className="hidden items-center gap-6 lg:flex">
               {navItems.map((item) => {
-                const isActive = activeSection === item.id;
-                const Icon = item.icon;
+                const isActive =
+                  currentView === "landing"
+                    ? activeSection === item.id
+                    : activeDashboardTab === item.id;
+
+                if (currentView === "landing") {
+                  const landingItem = item as LandingNavItem;
+                  const Icon = landingItem.icon;
+
+                  return (
+                    <Link
+                      key={landingItem.label}
+                      href={landingItem.href}
+                      onClick={(e) => handleNavClick(e, landingItem.href, landingItem.id)}
+                      className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${
+                        isActive ? "text-white" : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      {Icon && <Icon className="h-4 w-4" />}
+                      <span>{landingItem.label}</span>
+
+                      {isActive && (
+                        <motion.span
+                          layoutId="nav-underline"
+                          className="absolute -bottom-0.5 left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                        />
+                      )}
+                    </Link>
+                  );
+                }
 
                 return (
-                  <Link
+                  <button
                     key={item.label}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href, item.id)}
-                    className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
-                      }`}
+                    onClick={() => {
+                      onDashboardTabChange(item.id as DashboardTab);
+                      if (item.id === "dashboard") {
+                        onDashboard();
+                      }
+                    }}
+                    className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${
+                      isActive ? "text-white" : "text-slate-300 hover:text-white"
+                    }`}
                   >
-                    {Icon && <Icon className="h-4 w-4" />}
                     <span>{item.label}</span>
 
                     {isActive && (
@@ -223,32 +332,177 @@ export default function Navbar({
                         transition={{ type: "spring", stiffness: 380, damping: 32 }}
                       />
                     )}
-                  </Link>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Desktop Buttons */}
+            {/* Desktop Right Side */}
             <div className="hidden items-center gap-4 lg:flex">
-              <button
-                onClick={() => {
-                  handleActionClick();
-                  onLogin();
-                }}
-                className="rounded-xl border border-white/10 px-5 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:border-white/20 hover:bg-white/10 hover:text-white"
-              >
-                Sign In
-              </button>
+              <AnimatePresence mode="wait" initial={false}>
+                {!isAuthenticated ? (
+                  <motion.div
+                    key="unauthenticated-buttons"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex items-center gap-4"
+                  >
+                    <button
+                      onClick={() => {
+                        handleActionClick();
+                        onLogin();
+                      }}
+                      className="rounded-xl border border-white/10 px-5 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:border-white/20 hover:bg-white/10 hover:text-white"
+                    >
+                      Sign In
+                    </button>
 
-              <button
-                onClick={() => {
-                  handleActionClick();
-                  onRegister();
-                }}
-                className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-transform duration-300 hover:scale-105"
-              >
-                Get Started
-              </button>
+                    <button
+                      onClick={() => {
+                        handleActionClick();
+                        onRegister();
+                      }}
+                      className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-transform duration-300 hover:scale-105"
+                    >
+                      Get Started
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    ref={profileRef}
+                    key="authenticated-avatar"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative z-50"
+                  >
+                    <button
+                      onClick={() => setProfileOpen((prev) => !prev)}
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        rounded-xl
+                        border
+                        border-white/10
+                        bg-white/5
+                        px-3
+                        py-2
+                        text-white
+                        transition-all
+                        hover:bg-white/10
+                      "
+                    >
+                      <UserCircle2 size={24} />
+
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform ${
+                          profileOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {profileOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                          transition={{ duration: 0.18 }}
+                          className="
+                            absolute
+                            right-0
+                            top-full
+                            mt-3
+                            z-50
+                            w-60
+                            overflow-hidden
+                            rounded-2xl
+                            border
+                            border-white/10
+                            bg-[#0b1120]/95
+                            backdrop-blur-2xl
+                            shadow-2xl
+                          "
+                        >
+                          <button
+                            className="
+                              flex
+                              w-full
+                              items-center
+                              gap-3
+                              px-5
+                              py-4
+                              text-left
+                              text-slate-300
+                              transition
+                              hover:bg-white/5
+                              hover:text-white
+                            "
+                          >
+                            <User size={18} />
+
+                            Profile
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setProfileOpen(false);
+                              onDashboard();
+                            }}
+                            className="
+                              flex
+                              w-full
+                              items-center
+                              gap-3
+                              px-5
+                              py-4
+                              text-left
+                              text-slate-300
+                              transition
+                              hover:bg-white/5
+                              hover:text-white
+                            "
+                          >
+                            <LayoutDashboard size={18} />
+
+                            Dashboard
+                          </button>
+
+                          <div className="mx-4 border-t border-white/10" />
+
+                          <button
+                            onClick={() => {
+                              setProfileOpen(false);
+                              onLogout();
+                            }}
+                            className="
+                              flex
+                              w-full
+                              items-center
+                              gap-3
+                              px-5
+                              py-4
+                              text-left
+                              text-red-400
+                              transition
+                              hover:bg-red-500/10
+                            "
+                          >
+                            <LogOut size={18} />
+
+                            Logout
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Mobile Button */}
@@ -274,16 +528,50 @@ export default function Navbar({
           >
             <div className="flex flex-col gap-5">
               {navItems.map((item) => {
-                const isActive = activeSection === item.id;
-                const Icon = item.icon;
+                const isActive =
+                  currentView === "landing"
+                    ? activeSection === item.id
+                    : activeDashboardTab === item.id;
+
+                if (currentView === "landing") {
+                  const landingItem = item as LandingNavItem;
+                  const Icon = landingItem.icon;
+
+                  return (
+                    <Link
+                      key={landingItem.label}
+                      href={landingItem.href}
+                      onClick={(e) => handleNavClick(e, landingItem.href, landingItem.id)}
+                      className={`relative flex items-center gap-2 pl-3 transition-colors duration-300 ${
+                        isActive ? "text-white" : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="nav-underline-mobile"
+                          className="absolute left-0 top-0 h-full w-[2px] rounded-full bg-gradient-to-b from-cyan-400 to-blue-500"
+                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                        />
+                      )}
+                      {Icon && <Icon className="h-4 w-4" />}
+                      {landingItem.label}
+                    </Link>
+                  );
+                }
 
                 return (
-                  <Link
+                  <button
                     key={item.label}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href, item.id)}
-                    className={`relative flex items-center gap-2 pl-3 transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
-                      }`}
+                    onClick={() => {
+                      setMobileOpen(false);
+                      onDashboardTabChange(item.id as DashboardTab);
+                      if (item.id === "dashboard") {
+                        onDashboard();
+                      }
+                    }}
+                    className={`relative flex items-center gap-2 pl-3 text-left transition-colors duration-300 ${
+                      isActive ? "text-white" : "text-slate-300 hover:text-white"
+                    }`}
                   >
                     {isActive && (
                       <motion.span
@@ -292,9 +580,8 @@ export default function Navbar({
                         transition={{ type: "spring", stiffness: 380, damping: 32 }}
                       />
                     )}
-                    {Icon && <Icon className="h-4 w-4" />}
                     {item.label}
-                  </Link>
+                  </button>
                 );
               })}
 

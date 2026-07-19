@@ -230,10 +230,10 @@ export default function RegisterForm({
                 {isLoading ? (
                     <>
                         <Loader2 className="h-5 w-5 animate-spin text-black" />
-                        <span>Creating Account...</span>
+                        <span>Registering...</span>
                     </>
                 ) : (
-                    "Create Account"
+                    "Register"
                 )}
             </button>
 
