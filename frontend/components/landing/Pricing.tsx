@@ -51,7 +51,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Same gentle, well-damped spring used for hover lifts/scales elsewhere.
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-export default function Pricing() {
+export default function Pricing({ onRegister }: { onRegister?: () => void }) {
   return (
     <section
       id="pricing"
@@ -161,6 +161,7 @@ export default function Pricing() {
                 </p>
 
                 <button
+                  onClick={onRegister}
                   className={`group/btn mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-colors duration-300 ease-out
                   ${
                     plan.popular

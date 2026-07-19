@@ -62,7 +62,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Same gentle, well-damped spring used for the Features card hover lift.
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-export default function HowItWorks() {
+export default function HowItWorks({ onRegister }: { onRegister?: () => void }) {
   return (
     <section
       id="how-it-works"
@@ -186,6 +186,7 @@ export default function HowItWorks() {
           className="mt-24 text-center"
         >
           <motion.button
+            onClick={onRegister}
             whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
             whileTap={{ scale: 0.97, transition: { duration: 0.15, ease: EASE } }}
             className="rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-cyan-500/30"

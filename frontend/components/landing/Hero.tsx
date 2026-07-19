@@ -16,7 +16,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Same gentle, well-damped spring used for hover lifts/scales elsewhere.
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-export default function Hero() {
+export default function Hero({ onRegister }: { onRegister?: () => void }) {
   return (
     <section
         id="home"
@@ -61,6 +61,7 @@ export default function Hero() {
           <div className="mt-10 flex flex-wrap gap-5 mb-6">
 
             <motion.button
+              onClick={onRegister}
               whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
               whileTap={{ scale: 0.97, transition: { duration: 0.15, ease: EASE } }}
               className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 font-semibold shadow-lg shadow-cyan-500/30"

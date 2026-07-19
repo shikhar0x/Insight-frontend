@@ -60,13 +60,12 @@ const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } 
 export default function Features() {
   return (
     <section id="features"
-        className="relative overflow-hidden px-6 py-16"
+      className="relative overflow-hidden px-6 py-16"
     >
       {/* Background Glow */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-cyan-500/10 blur-[170px]" />
         <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-600/10 blur-[150px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:48px_48px]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-6">

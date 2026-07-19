@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles, Home } from "lucide-react";
+import { Menu, X, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
@@ -13,7 +13,17 @@ const navItems = [
   { label: "FAQ", href: "#faq", id: "faq" },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  onLogin: () => void;
+  onRegister: () => void;
+  lockVisible?: boolean;
+}
+
+export default function Navbar({
+  onLogin,
+  onRegister,
+  lockVisible = false,
+}: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -25,12 +35,17 @@ export default function Navbar() {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 20;
       setScrolled(isScrolled);
-      setVisible(!isScrolled);
+      if (!lockVisible) setVisible(!isScrolled);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lockVisible]);
+
+  // When lockVisible changes to true, force the navbar visible.
+  useEffect(() => {
+    if (lockVisible) setVisible(true);
+  }, [lockVisible]);
 
   // Scroll-spy: figure out which section is currently under the navbar
   // so the sliding underline can track it as the user scrolls, not just
@@ -72,6 +87,7 @@ export default function Navbar() {
   };
 
   const hideNavbar = () => {
+    if (lockVisible) return;
     if (window.scrollY <= 20) return;
     hideTimeout.current = setTimeout(() => {
       setVisible(false);
@@ -109,7 +125,7 @@ export default function Navbar() {
   // Sign In / Get Started etc. — no scroll target, just close menu.
   const handleActionClick = () => {
     setMobileOpen(false);
-    setVisible(false);
+    if (!lockVisible) setVisible(false);
   };
 
   return (
@@ -169,18 +185,18 @@ export default function Navbar() {
             <Link
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="flex items-center gap-3 font-semibold text-white"
+              className="flex items-center gap-2.5 font-semibold text-white"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 shadow-lg shadow-cyan-500/25">
-                <Sparkles className="h-5 w-5" />
-              </div>
-
-              <div className="leading-tight">
-                <p className="text-lg font-bold tracking-wide">Insight</p>
-                <p className="text-xs text-slate-400">
-                  Explainable AI Investing
-                </p>
-              </div>
+              <img
+                src="/Logo.svg"
+                alt="Insight Shield Logo"
+                className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.45)] transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(34,211,238,0.7)]"
+              />
+              <img
+                src="/Text.svg"
+                alt="Insight Text"
+                className="h-7 w-auto object-contain drop-shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-300 hover:drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -215,14 +231,20 @@ export default function Navbar() {
             {/* Desktop Buttons */}
             <div className="hidden items-center gap-4 lg:flex">
               <button
-                onClick={handleActionClick}
+                onClick={() => {
+                  handleActionClick();
+                  onLogin();
+                }}
                 className="rounded-xl border border-white/10 px-5 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 Sign In
               </button>
 
               <button
-                onClick={handleActionClick}
+                onClick={() => {
+                  handleActionClick();
+                  onRegister();
+                }}
                 className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-transform duration-300 hover:scale-105"
               >
                 Get Started
@@ -278,14 +300,14 @@ export default function Navbar() {
 
               <div className="mt-4 flex flex-col gap-3">
                 <button
-                  onClick={handleActionClick}
+                  onClick={onLogin}
                   className="rounded-xl border border-white/10 py-3 text-slate-300"
                 >
                   Sign In
                 </button>
 
                 <button
-                  onClick={handleActionClick}
+                  onClick={onRegister}
                   className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 font-semibold text-white"
                 >
                   Get Started
