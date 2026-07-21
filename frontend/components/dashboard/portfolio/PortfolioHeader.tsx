@@ -45,14 +45,9 @@ export default function PortfolioHeader({ onBack }: PortfolioHeaderProps) {
       </div>
 
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl text-white">
-        My{" "}
-        <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-          Portfolio
-        </span>
+        Portfolio
       </h1>
-      <p className="mt-1 text-slate-400">
-        Track your holdings, P&L, and allocation at a glance.
-      </p>
+      <p className="mt-1 text-slate-400">Demo Portfolio</p>
     </div>
   );
 }

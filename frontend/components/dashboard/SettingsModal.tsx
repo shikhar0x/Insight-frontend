@@ -1,0 +1,228 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Lock, Bell, Moon } from "lucide-react";
+
+interface SettingsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+// Theme dropdown component reused
+function ThemeDropdown({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (val: string) => void;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const options = [
+        { label: "Dark", value: "dark" },
+        { label: "Light", value: "light" },
+    ];
+
+    const selectedLabel = options.find((opt) => opt.value === value)?.label || "Dark";
+
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-cyan-400/50"
+            >
+                <span>{selectedLabel}</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                >
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 top-full mt-2 w-32 rounded-xl border border-white/10 bg-[#0B1220] shadow-2xl backdrop-blur-3xl z-10 overflow-hidden"
+                    >
+                        {options.map((opt) => (
+                            <button
+                                key={opt.value}
+                                onClick={() => {
+                                    onChange(opt.value);
+                                    setIsOpen(false);
+                                }}
+                                className={`block w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/5 ${opt.value === value ? "text-cyan-400 font-semibold" : "text-slate-300"
+                                    }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+    const [theme, setTheme] = useState("dark");
+    const [notifications, setNotifications] = useState(true);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const handlePasswordChange = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+        alert("Password changed successfully!");
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                    />
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="
+              relative
+              w-full
+              max-w-lg
+              max-h-[90vh]
+              overflow-y-auto
+              rounded-3xl
+              border
+              border-white/10
+              bg-[#0B1220]
+              p-6
+              shadow-2xl
+              backdrop-blur-3xl
+              z-10
+            "
+                    >
+                        <button
+                            onClick={onClose}
+                            className="absolute right-4 top-4 rounded-full p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"
+                        >
+                            <X size={18} />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-white border-b border-white/10 pb-4 mb-4 flex items-center gap-2">
+                            <Settings className="h-5 w-5 text-cyan-400" />
+                            Settings
+                        </h3>
+
+                        <div className="space-y-6">
+                            {/* Change Password */}
+                            <div>
+                                <h4 className="text-sm font-semibold text-slate-400 flex items-center gap-2 mb-3">
+                                    <Lock className="h-4 w-4" />
+                                    Change Password
+                                </h4>
+                                <form onSubmit={handlePasswordChange} className="space-y-3">
+                                    <input
+                                        type="password"
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
+                                        placeholder="Current password"
+                                        required
+                                        className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50"
+                                    />
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="New password"
+                                        required
+                                        className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50"
+                                    />
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Confirm new password"
+                                        required
+                                        className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50"
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-cyan-500/25 transition hover:scale-105"
+                                    >
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Preferences */}
+                            <div className="border-t border-white/10 pt-4">
+                                <h4 className="text-sm font-semibold text-slate-400 flex items-center gap-2 mb-3">
+                                    <Bell className="h-4 w-4" />
+                                    Preferences
+                                </h4>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-slate-300">Theme</span>
+                                        <ThemeDropdown value={theme} onChange={setTheme} />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-slate-300">Notifications</span>
+                                        <label className="relative inline-flex cursor-pointer items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications}
+                                                onChange={(e) => setNotifications(e.target.checked)}
+                                                className="peer sr-only"
+                                            />
+                                            <div className="peer h-6 w-11 rounded-full bg-slate-600 transition after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/10 after:bg-white after:transition-all peer-checked:bg-cyan-500 peer-checked:after:translate-x-full"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                onClick={onClose}
+                                className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2 font-semibold text-white shadow-lg shadow-cyan-500/25 transition hover:scale-105"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+}
+
+function Settings({ className }: { className?: string }) {
+    return <Moon className={className} />;
+}

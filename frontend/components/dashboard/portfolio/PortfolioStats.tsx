@@ -1,39 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IndianRupee, TrendingUp, Percent } from "lucide-react";
+import { Shield, Scale, TrendingUp, BarChart3 } from "lucide-react";
 import type { PortfolioSummary } from "@/lib/portfolioData";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const HOVER_SPRING = { type: "spring", stiffness: 260, damping: 24, mass: 0.9 } as const;
 
-function formatCurrency(amount: number): string {
-  if (amount >= 100000) {
-    return `₹${(amount / 100000).toFixed(2)}L`;
-  }
-  return `₹${amount.toLocaleString("en-IN")}`;
-}
-
-function formatPnL(amount: number): string {
-  const prefix = amount >= 0 ? "+" : "";
-  return `${prefix}₹${Math.abs(amount).toLocaleString("en-IN")}`;
-}
-
 interface PortfolioStatsProps {
   data: PortfolioSummary;
 }
 
-interface StatCardProps {
+interface ScoreCardProps {
   title: string;
-  value: string;
+  value: string | number;
   subtitle: string;
-  isPositive: boolean;
   icon: React.ElementType;
   index: number;
   accentColor: string;
+  statusLabel?: string;
+  statusColor?: string;
 }
 
-function StatCard({ title, value, subtitle, isPositive, icon: Icon, index, accentColor }: StatCardProps) {
+function ScoreCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  index,
+  accentColor,
+  statusLabel,
+  statusColor,
+}: ScoreCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -78,15 +76,16 @@ function StatCard({ title, value, subtitle, isPositive, icon: Icon, index, accen
         </motion.div>
       </div>
 
-      <div className="relative mt-4 text-3xl font-extrabold text-white">{value}</div>
-
-      <div
-        className={`relative mt-2 text-xs font-semibold ${
-          isPositive ? "text-emerald-400" : "text-red-400"
-        }`}
-      >
-        {subtitle}
+      <div className="relative mt-2 text-4xl font-extrabold text-white">
+        {value}
+        {statusLabel && (
+          <span className={`ml-3 text-sm font-medium ${statusColor || "text-slate-400"}`}>
+            {statusLabel}
+          </span>
+        )}
       </div>
+
+      <div className="relative mt-1 text-xs text-slate-400">{subtitle}</div>
 
       {/* Bottom Accent */}
       <motion.div
@@ -101,33 +100,40 @@ function StatCard({ title, value, subtitle, isPositive, icon: Icon, index, accen
 
 export default function PortfolioStats({ data }: PortfolioStatsProps) {
   return (
-    <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <StatCard
-        title="Total Portfolio Value"
-        value={formatCurrency(data.totalValue)}
-        subtitle="Across all holdings"
-        isPositive={true}
-        icon={IndianRupee}
+    <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <ScoreCard
+        title="Risk"
+        value={data.riskScore}
+        subtitle="Higher = lower risk profile"
+        icon={Shield}
         index={0}
         accentColor="bg-cyan-500/10 text-cyan-400"
       />
-      <StatCard
-        title="Today's Gain / Loss"
-        value={formatPnL(data.todayPnL)}
-        subtitle={data.todayPnL >= 0 ? "Market performing well" : "Market downturn"}
-        isPositive={data.todayPnL >= 0}
-        icon={TrendingUp}
+      <ScoreCard
+        title="Mixed"
+        value={data.mixedScore}
+        subtitle="Profitability, liquidity & efficiency"
+        icon={Scale}
         index={1}
         accentColor="bg-emerald-500/10 text-emerald-400"
       />
-      <StatCard
-        title="Overall Return"
-        value={`${data.totalReturn >= 0 ? "+" : ""}${data.totalReturn}%`}
-        subtitle={data.totalReturn >= 0 ? "Outperforming Nifty 50" : "Underperforming benchmark"}
-        isPositive={data.totalReturn >= 0}
-        icon={Percent}
+      <ScoreCard
+        title="Fundamental"
+        value={data.fundamentalScore}
+        subtitle="Profitability, liquidity & efficiency"
+        icon={TrendingUp}
         index={2}
         accentColor="bg-blue-500/10 text-blue-400"
+        statusLabel="Weak"
+        statusColor="text-amber-400"
+      />
+      <ScoreCard
+        title="Technical"
+        value={data.technicalScore}
+        subtitle="Trend, momentum & volume signals"
+        icon={BarChart3}
+        index={3}
+        accentColor="bg-purple-500/10 text-purple-400"
       />
     </div>
   );

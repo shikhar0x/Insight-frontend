@@ -13,6 +13,10 @@ import {
   User,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ProfileModal from "@/components/dashboard/ProfileModal";
+import FullProfileModal from "@/components/dashboard/FullProfileModal";
+import SettingsModal from "@/components/dashboard/SettingsModal";
+import SubscriptionModal from "@/components/dashboard/SubscriptionModal";
 
 interface LandingNavItem {
   label: string;
@@ -74,11 +78,12 @@ export default function Navbar({
   const [visible, setVisible] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isFullProfileModalOpen, setIsFullProfileModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
-  const navItems =
-    currentView === "landing"
-      ? landingNavItems
-      : dashboardNavItems;
+  const navItems = currentView === "landing" ? landingNavItems : dashboardNavItems;
 
   const hideTimeout = useRef<NodeJS.Timeout | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -95,6 +100,10 @@ export default function Navbar({
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setProfileOpen(false);
+        setIsProfileModalOpen(false);
+        setIsFullProfileModalOpen(false);
+        setIsSettingsModalOpen(false);
+        setIsSubscriptionModalOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -123,9 +132,7 @@ export default function Navbar({
     }
   }, [lockVisible, isAuthenticated, currentView]);
 
-  // Scroll-spy: figure out which section is currently under the navbar
-  // so the sliding underline can track it as the user scrolls, not just
-  // when they click.
+  // Scroll-spy
   useEffect(() => {
     if (currentView !== "landing") return;
 
@@ -157,7 +164,7 @@ export default function Navbar({
     handleActiveSection();
     window.addEventListener("scroll", handleActiveSection, { passive: true });
     return () => window.removeEventListener("scroll", handleActiveSection);
-  }, []);
+  }, [currentView]);
 
   const showNavbar = () => {
     if (hideTimeout.current) clearTimeout(hideTimeout.current);
@@ -172,19 +179,12 @@ export default function Navbar({
     }, 200);
   };
 
-  // Nav item click: close mobile menu, hide the floating bar (existing
-  // behavior), then smooth-scroll to the target section ourselves instead
-  // of relying on the browser's instant anchor jump. Sets the active
-  // section immediately so the underline slides right away instead of
-  // waiting for the scroll-spy to catch up mid-scroll.
   const handleNavClick = (e: MouseEvent, href: string, id: string) => {
     e.preventDefault();
     setMobileOpen(false);
     setActiveSection(id);
 
     if (id === "home") {
-      // Already home: just scroll to top, keep the bar visible — there's
-      // no new section to reveal, so nothing should disappear.
       if (activeSection !== "home") {
         setVisible(false);
       }
@@ -200,7 +200,6 @@ export default function Navbar({
     }
   };
 
-  // Sign In / Get Started etc. — no scroll target, just close mobile menu.
   const handleActionClick = () => {
     setMobileOpen(false);
     setVisible(true);
@@ -224,20 +223,12 @@ export default function Navbar({
         className="fixed left-0 right-0 top-0 z-50 flex justify-center px-5 py-4"
         style={{
           pointerEvents: visible ? "auto" : "none",
-          // keep the header itself as a light-weight transform-only layer
           willChange: "transform",
           transform: "translate3d(0,0,0)",
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden",
         }}
       >
-        {/*
-          IMPORTANT: the glass frame (background + backdrop-blur) lives on a
-          plain, non-animated element. It is never the thing that fades/scales,
-          so the browser can keep the backdrop-filter composited and ready
-          at all times — it doesn't have to "catch up" after the slide-in.
-          Only the wrapper above animates a transform.
-        */}
         <nav
           className={`relative w-full max-w-7xl rounded-3xl
             border border-white/15
@@ -247,7 +238,7 @@ export default function Navbar({
             transition-colors duration-300
             ${scrolled ? "border-white/20 bg-white/[0.10]" : ""}`}
         >
-          {/* Liquid Glass shine layer — static, always fully rendered. */}
+          {/* Liquid Glass shine layer */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
             <div className="absolute left-1/2 -top-28 h-56 w-[28rem] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.15)_0%,transparent_70%)]" />
@@ -292,9 +283,8 @@ export default function Navbar({
                       key={landingItem.label}
                       href={landingItem.href}
                       onClick={(e) => handleNavClick(e, landingItem.href, landingItem.id)}
-                      className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${
-                        isActive ? "text-white" : "text-slate-300 hover:text-white"
-                      }`}
+                      className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
+                        }`}
                     >
                       {Icon && <Icon className="h-4 w-4" />}
                       <span>{landingItem.label}</span>
@@ -319,9 +309,8 @@ export default function Navbar({
                         onDashboard();
                       }
                     }}
-                    className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${
-                      isActive ? "text-white" : "text-slate-300 hover:text-white"
-                    }`}
+                    className={`relative flex items-center gap-1.5 pb-1 text-sm font-medium transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
+                      }`}
                   >
                     <span>{item.label}</span>
 
@@ -400,9 +389,8 @@ export default function Navbar({
 
                       <ChevronDown
                         size={16}
-                        className={`transition-transform ${
-                          profileOpen ? "rotate-180" : ""
-                        }`}
+                        className={`transition-transform ${profileOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
@@ -429,7 +417,12 @@ export default function Navbar({
                             shadow-2xl
                           "
                         >
+                          {/* Profile - opens main modal */}
                           <button
+                            onClick={() => {
+                              setProfileOpen(false);
+                              setIsProfileModalOpen(true);
+                            }}
                             className="
                               flex
                               w-full
@@ -445,7 +438,6 @@ export default function Navbar({
                             "
                           >
                             <User size={18} />
-
                             Profile
                           </button>
 
@@ -469,7 +461,6 @@ export default function Navbar({
                             "
                           >
                             <LayoutDashboard size={18} />
-
                             Dashboard
                           </button>
 
@@ -494,7 +485,6 @@ export default function Navbar({
                             "
                           >
                             <LogOut size={18} />
-
                             Logout
                           </button>
                         </motion.div>
@@ -542,9 +532,8 @@ export default function Navbar({
                       key={landingItem.label}
                       href={landingItem.href}
                       onClick={(e) => handleNavClick(e, landingItem.href, landingItem.id)}
-                      className={`relative flex items-center gap-2 pl-3 transition-colors duration-300 ${
-                        isActive ? "text-white" : "text-slate-300 hover:text-white"
-                      }`}
+                      className={`relative flex items-center gap-2 pl-3 transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
+                        }`}
                     >
                       {isActive && (
                         <motion.span
@@ -569,9 +558,8 @@ export default function Navbar({
                         onDashboard();
                       }
                     }}
-                    className={`relative flex items-center gap-2 pl-3 text-left transition-colors duration-300 ${
-                      isActive ? "text-white" : "text-slate-300 hover:text-white"
-                    }`}
+                    className={`relative flex items-center gap-2 pl-3 text-left transition-colors duration-300 ${isActive ? "text-white" : "text-slate-300 hover:text-white"
+                      }`}
                   >
                     {isActive && (
                       <motion.span
@@ -604,6 +592,27 @@ export default function Navbar({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* All Modals */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onOpenProfile={() => setIsFullProfileModalOpen(true)}
+        onOpenSettings={() => setIsSettingsModalOpen(true)}
+        onOpenSubscription={() => setIsSubscriptionModalOpen(true)}
+      />
+      <FullProfileModal
+        isOpen={isFullProfileModalOpen}
+        onClose={() => setIsFullProfileModalOpen(false)}
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+      />
     </>
   );
 }

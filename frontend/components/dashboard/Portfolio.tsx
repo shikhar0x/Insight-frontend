@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import PortfolioHeader from "./portfolio/PortfolioHeader";
 import PortfolioStats from "./portfolio/PortfolioStats";
+import Contributors from "./portfolio/Contributors";
 import HoldingsTable from "./portfolio/HoldingsTable";
-import AllocationCard from "./portfolio/AllocationCard";
-import { portfolio, holdings } from "@/lib/portfolioData";
+import HoldingsChart from "./portfolio/HoldingsChart";
+import AIAnalysisButton from "./portfolio/AIAnalysisButton";
+import AIAnalysisModal from "./portfolio/AIAnalysisModal";
+import { portfolio, holdings, getTopContributors, getBottomLaggards } from "@/lib/portfolioData";
 
 interface PortfolioProps {
   onBack?: () => void;
@@ -12,6 +16,12 @@ interface PortfolioProps {
 }
 
 export default function Portfolio({ onBack, onViewStock }: PortfolioProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const topContributors = getTopContributors(holdings, 3);
+  const bottomLaggards = getBottomLaggards(holdings, 3);
+  const totalValue = holdings.reduce((sum, h) => sum + h.current * h.qty, 0);
+
   return (
     <div className="relative min-h-screen px-6 pt-24 pb-20 text-white">
       {/* Background Glows */}
@@ -23,9 +33,17 @@ export default function Portfolio({ onBack, onViewStock }: PortfolioProps) {
       <div className="mx-auto max-w-7xl px-8">
         <PortfolioHeader onBack={onBack} />
         <PortfolioStats data={portfolio} />
+        <Contributors
+          topContributors={topContributors}
+          bottomLaggards={bottomLaggards}
+          totalValue={totalValue}
+        />
+        <HoldingsChart holdings={holdings} totalValue={totalValue} />
         <HoldingsTable holdings={holdings} onViewStock={onViewStock} />
-        <AllocationCard />
+        <AIAnalysisButton onClick={() => setIsModalOpen(true)} />
       </div>
+
+      <AIAnalysisModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }
