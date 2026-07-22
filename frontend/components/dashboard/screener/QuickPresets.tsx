@@ -96,11 +96,10 @@ export default function QuickPresets({ selectedPreset, onSelectPreset, customPre
               onClick={() => onSelectPreset(preset.id)}
               whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
               whileTap={{ scale: 0.95 }}
-              className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all duration-300 ${
-                selectedPreset === preset.id
+              className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all duration-300 ${selectedPreset === preset.id
                   ? "border-cyan-400/40 bg-cyan-500/20 text-cyan-300 shadow-md shadow-cyan-500/10"
                   : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
-              }`}
+                }`}
             >
               {preset.name}
             </motion.button>
@@ -112,7 +111,7 @@ export default function QuickPresets({ selectedPreset, onSelectPreset, customPre
       {customPresets.length > 0 && (
         <div className="space-y-3 pt-2">
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Saved Screens (Local)
+            Custom
           </h3>
           <div className="flex flex-wrap gap-2.5">
             {customPresets.map((name) => (
@@ -121,11 +120,10 @@ export default function QuickPresets({ selectedPreset, onSelectPreset, customPre
                 onClick={() => onSelectPreset(name)}
                 whileHover={{ scale: 1.05, transition: HOVER_SPRING }}
                 whileTap={{ scale: 0.95 }}
-                className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all duration-300 ${
-                  selectedPreset === name
+                className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all duration-300 ${selectedPreset === name
                     ? "border-cyan-400/40 bg-cyan-500/20 text-cyan-300 shadow-md shadow-cyan-500/10"
                     : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
-                }`}
+                  }`}
               >
                 {name}
               </motion.button>
