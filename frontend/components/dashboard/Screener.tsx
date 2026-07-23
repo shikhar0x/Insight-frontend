@@ -12,7 +12,7 @@ import DeleteConfirmationModal from "./screener/DeleteConfirmationModal";
 import ResultsTable from "./screener/ResultsTable";
 import EmptyResults from "./screener/EmptyResults";
 import { screenerStocks } from "@/lib/screenerData";
-import type { Filter, Stock, FilterMetric } from "./screener/types";
+import type { Filter, Stock, FilterMetric, OperatorType } from "./screener/types";
 
 interface ScreenerProps {
   onBack?: () => void;
@@ -44,12 +44,12 @@ export default function Screener({ onBack, onViewStock }: ScreenerProps) {
   });
 
   // Manage dynamic filters
-  const handleAddFilter = (metric: FilterMetric) => {
+  const handleAddFilter = (metric: FilterMetric, operator?: OperatorType, value?: string | number) => {
     const newFilter: Filter = {
       id: Math.random().toString(36).substr(2, 9),
       metricId: metric.id,
-      operator: metric.type === "number" ? ">" : "=",
-      value: metric.type === "number" ? 0 : "",
+      operator: operator ?? (metric.type === "number" ? ">" : "="),
+      value: value ?? (metric.type === "number" ? 0 : ""),
     };
     setFilters((prev) => [...prev, newFilter]);
     setSelectedPreset(null);
@@ -334,7 +334,7 @@ export default function Screener({ onBack, onViewStock }: ScreenerProps) {
           filters={filters}
           onUpdateFilter={handleUpdateFilter}
           onRemoveFilter={handleRemoveFilter}
-          onAddFilterClick={() => setShowFilterModal(true)}
+          onAddFilter={handleAddFilter}
         />
 
         {sortedStocks.length > 0 ? (
