@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { X, Search } from "lucide-react";
+import { X, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FilterMetric, OperatorType, Filter } from "./types";
 import CustomSelect from "./CustomSelect";
@@ -88,6 +88,17 @@ export default function AddFilterModal({
       finalValue = parseFloat(String(value)) || 0;
     }
     onSave(selectedMetricId, operator, finalValue);
+  };
+
+  const adjustNumberValue = (direction: "up" | "down") => {
+    const currentVal = parseFloat(String(value)) || 0;
+    const step = selectedMetric?.id === "debtEquity" ? 0.05 : 1;
+    const newVal = direction === "up" ? currentVal + step : currentVal - step;
+    if (selectedMetric?.id === "debtEquity") {
+      setValue(parseFloat(newVal.toFixed(2)));
+    } else {
+      setValue(parseFloat(newVal.toFixed(1)));
+    }
   };
 
   return (
@@ -196,14 +207,34 @@ export default function AddFilterModal({
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                       Value
                     </label>
-                    <input
-                      type={selectedMetric.type === "number" ? "number" : "text"}
-                      value={value}
-                      onChange={(e) => setValue(e.target.value)}
-                      placeholder={selectedMetric.placeholder || "Enter value"}
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50"
-                      step="any"
-                    />
+                    <div className="relative flex items-center">
+                      <input
+                        type={selectedMetric.type === "number" ? "number" : "text"}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        placeholder={selectedMetric.placeholder || "Enter value"}
+                        className="w-full rounded-xl border border-white/10 bg-black/40 pl-3.5 pr-10 py-2.5 text-sm text-white outline-none focus:border-cyan-400/50"
+                        step="any"
+                      />
+                      {selectedMetric.type === "number" && (
+                        <div className="absolute right-2.5 flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => adjustNumberValue("up")}
+                            className="rounded p-0.5 text-slate-400 hover:bg-white/5 hover:text-cyan-400 transition-colors"
+                          >
+                            <ChevronUp className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => adjustNumberValue("down")}
+                            className="rounded p-0.5 text-slate-400 hover:bg-white/5 hover:text-cyan-400 transition-colors"
+                          >
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ) : null}
